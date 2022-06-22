@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
 
 	scanner := bufio.NewScanner(f)
 
-	formatter := NewLineFormatter()
+	formatter := NewLineFormatter(time.Local)
 	for scanner.Scan() {
 		line, err := formatter.Format(scanner.Bytes())
 		if err != nil {

@@ -6,9 +6,12 @@ import (
 	"time"
 )
 
-type f struct{}
+type f struct {
+	locale *time.Location
+}
 
 type logData struct {
+	f       *f
 	Time    *time.Time
 	Level   string
 	Message string
@@ -28,7 +31,7 @@ func (d *logData) UnmarshalJSON(data []byte) error {
 			d.Time = &tvalue
 			delete(m, "time")
 		case string:
-			tvalue, err := time.Parse(time.StampMilli, value)
+			tvalue, err := time.ParseInLocation(time.RFC3339Nano, value, d.f.locale)
 			if err != nil {
 				return err
 			}
@@ -55,18 +58,25 @@ func (d *logData) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func NewLineFormatter() *f {
-	return &f{}
+func NewLineFormatter(locale *time.Location) *f {
+	return &f{
+		locale: locale,
+	}
 }
 
 func (f *f) Format(input []byte) (string, error) {
 
-	data := logData{}
+	data := logData{
+		f: f,
+	}
 	if err := json.Unmarshal(input, &data); err != nil {
 		fmt.Printf("failed to unmarshal, err: %v\n", err)
 		return "", err
 	}
 
-	res := fmt.Sprintf("[%v] %v: %v, %v", data.Time.Format(time.StampMilli), data.Level, data.Message, data.Meta)
+	res := fmt.Sprintf("[%v] %v: %v", data.Time.Format(time.StampMilli), data.Level, data.Message)
+	if len(data.Meta) != 0 {
+		res += fmt.Sprintf(", %v", data.Meta)
+	}
 	return res, nil
 }

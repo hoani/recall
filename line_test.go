@@ -17,7 +17,7 @@ func Test_ConvertLine(t *testing.T) {
 	b, err := json.Marshal(data)
 	assert.Nil(t, err)
 
-	c := NewLineFormatter()
+	c := NewLineFormatter(time.UTC)
 	s, err := c.Format(b)
 	assert.Nil(t, err)
 	assert.Equal(t, "[Jan  1 12:00:01.001] error: something went wrong", s)
