@@ -21,5 +21,11 @@ jobs:
     - name: Build
       run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
+    - name: Run Tests
+      run: go test -v -covermode=count -coverprofile=coverage.out
+      
+    - uses: jandelgado/gcov2lcov-action@v1 
+    - uses: coverallsapp/github-action@v1.1.2
+      with:
+        github-token: ${{ secrets.github_token }}
+        path-to-lcov: coverage.lcov
