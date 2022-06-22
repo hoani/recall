@@ -17,11 +17,11 @@ func Test_ConvertLine_Success(t *testing.T) {
 		{
 			name: "simple with error",
 			data: map[string]interface{}{
-				"time":    time.Unix(0, 0).Add(time.Second + time.Millisecond + time.Microsecond),
+				"time":    time.Unix(0, 0).Add(time.Second + time.Millisecond + time.Microsecond).In(time.UTC),
 				"level":   "error",
 				"message": "something went wrong",
 			},
-			expected: "[Jan  1 12:00:01.001] ERROR something went wrong",
+			expected: "[Jan  1 00:00:01.001] ERROR something went wrong",
 		},
 		{
 			name: "info in 2016",
