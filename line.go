@@ -22,47 +22,21 @@ type logData struct {
 }
 
 func (d *logData) UnmarshalJSON(data []byte) error {
+	var err error
+	i := &defaultInterpreter{d.locale}
 	m := make(map[string]interface{})
-	if err := json.Unmarshal(data, &m); err != nil {
+	if err = json.Unmarshal(data, &m); err != nil {
 		return err
 	}
 
-	if mvalue, ok := m["time"]; ok {
-		switch value := mvalue.(type) {
-		case float64:
-			nanosecs := int64(value*1e9) % int64(1e9)
-			tvalue := time.Unix(int64(value), nanosecs).In(d.locale)
-			d.Time = &tvalue
-			delete(m, "time")
-		case string:
-			tvalue, err := time.ParseInLocation(time.RFC3339Nano, value, d.locale)
-			if err != nil {
-				return err
-			}
-			d.Time = &tvalue
-			delete(m, "time")
-		}
+	if d.Time, err = i.Time(m); err != nil {
+		return err
 	}
-
-	if mvalue, ok := m["level"]; ok {
-		if value, ok := mvalue.(string); ok {
-			d.Level = strings.ToUpper(value)
-			if len(d.Level) > 5 {
-				if strings.HasPrefix(d.Level, "WARN") {
-					d.Level = "WARN"
-				} else {
-					d.Level = d.Level[:5]
-				}
-			}
-			delete(m, "level")
-		}
+	if d.Level, err = i.Level(m); err != nil {
+		return err
 	}
-
-	if mvalue, ok := m["message"]; ok {
-		if value, ok := mvalue.(string); ok {
-			d.Message = value
-			delete(m, "message")
-		}
+	if d.Message, err = i.Message(m); err != nil {
+		return err
 	}
 
 	d.Meta = m
