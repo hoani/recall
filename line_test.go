@@ -40,6 +40,30 @@ func Test_ConvertLine_Success(t *testing.T) {
 			},
 			expected: "[                  1] WARN  you're almost there, but don't panic",
 		},
+		{
+			name: "missing message",
+			data: map[string]interface{}{
+				"time":  time.Unix(0, 0).In(time.UTC),
+				"level": "panic",
+			},
+			expected: "[Jan  1 00:00:00.000] PANIC",
+		},
+		{
+			name: "unknown level",
+			data: map[string]interface{}{
+				"time":  time.Unix(0, 0).In(time.UTC),
+				"level": "something",
+			},
+			expected: "[Jan  1 00:00:00.000] SOMET",
+		},
+		{
+			name: "missing level",
+			data: map[string]interface{}{
+				"time":    time.Unix(0, 0).In(time.UTC),
+				"message": "hello",
+			},
+			expected: "[Jan  1 00:00:00.000]       hello",
+		},
 	}
 
 	for _, tc := range testCases {

@@ -9,9 +9,8 @@ import (
 )
 
 type f struct {
-	index      int64
-	locale     *time.Location
-	timeLength int
+	index  int64
+	locale *time.Location
 }
 
 type logData struct {
@@ -94,7 +93,11 @@ func (f *f) Format(input []byte) (string, error) {
 	} else {
 		output += "[" + data.Time.Format(time.StampMilli) + "]"
 	}
-	output += fmt.Sprintf(" %-5v %v", data.Level, data.Message)
+
+	output += fmt.Sprintf(" %-5v", data.Level)
+	if len(data.Message) != 0 {
+		output += " " + data.Message
+	}
 	if len(data.Meta) != 0 {
 		output += fmt.Sprintf(", %v", data.Meta)
 	}
