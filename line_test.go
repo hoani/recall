@@ -64,6 +64,13 @@ func Test_ConvertLine_Success(t *testing.T) {
 			},
 			expected: "[Jan  1 00:00:00.000]       hello",
 		},
+		{
+			name: "numerical time",
+			data: map[string]interface{}{
+				"time": float64(time.Unix(0, 0).In(time.UTC).Unix()) + 0.25,
+			},
+			expected: "[Jan  1 00:00:00.250]      ",
+		},
 	}
 
 	for _, tc := range testCases {

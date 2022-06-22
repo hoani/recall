@@ -30,7 +30,8 @@ func (d *logData) UnmarshalJSON(data []byte) error {
 	if mvalue, ok := m["time"]; ok {
 		switch value := mvalue.(type) {
 		case float64:
-			tvalue := time.Unix(int64(value), 0)
+			nanosecs := int64(value*1e9) % int64(1e9)
+			tvalue := time.Unix(int64(value), nanosecs).In(d.locale)
 			d.Time = &tvalue
 			delete(m, "time")
 		case string:
