@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/i582/cfmt/cmd/cfmt"
 )
 
 type f struct {
@@ -62,14 +64,9 @@ func (f *f) Format(input []byte) (string, error) {
 	}
 
 	var output string
-	if data.Time == nil {
-		indexStr := strconv.FormatInt(f.index, 10)
-		output += "[" + strings.Repeat(" ", len(time.StampMilli)-len(indexStr)) + indexStr + "]"
-	} else {
-		output += "[" + data.Time.Format(time.StampMilli) + "]"
-	}
+	output += f.formatTime(data.Time)
+	output += " " + f.formatLevel(data.Level)
 
-	output += fmt.Sprintf(" %-5v", data.Level)
 	if len(data.Message) != 0 {
 		output += " " + data.Message
 	}
@@ -77,4 +74,31 @@ func (f *f) Format(input []byte) (string, error) {
 		output += fmt.Sprintf(", %v", data.Meta)
 	}
 	return output, nil
+}
+
+func (f *f) formatTime(t *time.Time) string {
+	if t == nil {
+		index := strconv.FormatInt(f.index, 10)
+		padding := strings.Repeat(" ", len(time.StampMilli)-len(index))
+		return cfmt.Sprintf("[%s%s]", padding, index)
+	} else {
+		return cfmt.Sprintf("{{[%s]}}::blue", t.Format(time.StampMilli))
+	}
+}
+
+func (f *f) formatLevel(level string) string {
+	color := "#888888"
+	switch strings.ToUpper(level) {
+	case "INFO":
+		color = "#33ddff"
+	case "WARN":
+		color = "#ffaa00"
+	case "DEBUG":
+		color = "#bb99bb"
+	case "ERROR":
+		color = "#ee4232"
+	case "PANIC":
+		color = "#ff4288"
+	}
+	return cfmt.Sprintf("{{%-5v}}::"+color+"|bold", level)
 }
