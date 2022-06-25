@@ -1,4 +1,4 @@
-module github.com/hoani/rerun
+module github.com/hoani/recall
 
 go 1.18
 
